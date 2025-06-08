@@ -1,6 +1,6 @@
 mod excalidraw;
 use excalidraw::{
-    structures::{self, Element, ExcalidrawFile},
+    structures::Element,
     utils::{self, simple_drawing},
 };
 

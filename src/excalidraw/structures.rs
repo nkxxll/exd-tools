@@ -1,5 +1,6 @@
+use rand::Rng;
 use serde::{Deserialize, Serialize};
-use std::default::Default;
+use std::{default::Default, time::{SystemTime, UNIX_EPOCH}};
 
 use super::utils;
 
@@ -140,6 +141,7 @@ pub struct FreedrawElement {
 
 impl Default for BaseElement {
     fn default() -> Self {
+        let mut rng = rand::rng();
         Self {
             id: utils::rand_element_id(),
             x: 0.0,
@@ -156,14 +158,14 @@ impl Default for BaseElement {
             opacity: 100,
             group_ids: vec![],
             frame_id: None,
-            index: "0".to_string(),
-            roundness: None,
+            index: "1".to_string(),
+            roundness: Some(Roundness { r#type: 3 }),
             seed: 1,
-            version: 1,
-            version_nonce: 0,
+            version: 12,
+            version_nonce: rng.random_range(0..30000),
             is_deleted: false,
             bound_elements: None,
-            updated: 0,
+            updated: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis() as i64,
             link: None,
             locked: false,
         }

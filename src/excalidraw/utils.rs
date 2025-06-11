@@ -1,6 +1,8 @@
+use std::time::{SystemTime, UNIX_EPOCH};
+
 use rand::Rng;
 
-use super::structures::{ExcalidrawFile, Rectangle};
+use super::structures::{Binding, Element, ExcalidrawArrow, ExcalidrawFile, Rectangle};
 
 pub struct Generator {
     pub index: usize,
@@ -8,14 +10,13 @@ pub struct Generator {
 
 impl Default for Generator {
     fn default() -> Self {
-        Self {
-            index: 1,
-        }
+        Self { index: 0 }
     }
 }
 
 impl Generator {
-    pub fn small_rectangle(self, x: f64, y: f64) -> Rectangle {
+    pub fn small_rectangle(&mut self, x: f64, y: f64) -> Rectangle {
+        self.index += 1;
         Rectangle {
             x,
             y,
@@ -24,7 +25,8 @@ impl Generator {
         }
     }
 
-    pub fn big_rectangle(self, x: f64, y: f64) -> Rectangle {
+    pub fn big_rectangle(&mut self, x: f64, y: f64) -> Rectangle {
+        self.index += 1;
         Rectangle {
             x,
             y,
@@ -36,7 +38,7 @@ impl Generator {
     }
 }
 
-pub fn simple_drawing(elements: Vec<Rectangle>) -> ExcalidrawFile {
+pub fn simple_drawing(elements: Vec<Element>) -> ExcalidrawFile {
     ExcalidrawFile {
         elements,
         ..Default::default()
@@ -65,6 +67,40 @@ pub(crate) fn generate_index(index: usize) -> String {
     let first = chars.chars().nth(index / chars.len()).unwrap();
     // rest has to be build like alphanumeric field
     format!("b{}{}", first, last)
+}
+
+pub(crate) fn updated_timestamp() -> u128 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_millis()
+}
+
+pub(crate) fn arrow_from_to(this: &Rectangle, other: &Rectangle) -> ExcalidrawArrow {
+    let y = 100.0;
+    let x = 150.0;
+    let height = 50.0;
+    let points = vec![[0.0, 0.0], [0.0, -50.0]];
+    let start_binding = Some(Binding{
+        element_id: this.id.clone(),
+        focus: 0.0,
+        gap: 10.0,
+    });
+    let end_binding = Some(Binding{
+        element_id: other.id.clone(),
+        focus: 0.0,
+        gap: 10.0,
+    });
+    ExcalidrawArrow {
+        x,
+        y,
+        width: 1.5,
+        height,
+        points,
+        start_binding,
+        end_binding,
+        ..Default::default()
+    }
 }
 
 #[cfg(test)]

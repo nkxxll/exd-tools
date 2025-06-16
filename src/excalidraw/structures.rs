@@ -1,15 +1,13 @@
 use rand::Rng;
 use serde::{Deserialize, Serialize};
-use std::
-    default::Default
-;
+use std::default::Default;
 
 use super::utils::{self, rand_element_id, updated_timestamp};
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Element {
-    Rectangle(Rectangle),
+    Rectangle(ExcalidrawRectangle),
     Arrow(ExcalidrawArrow),
 }
 
@@ -54,7 +52,7 @@ impl Default for ExcalidrawFile {
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Rectangle {
+pub struct ExcalidrawRectangle {
     pub id: String,
     pub r#type: String,
     pub x: f64,
@@ -77,7 +75,7 @@ pub struct Rectangle {
     pub version: u32,
     pub version_nonce: u64,
     pub is_deleted: bool,
-    pub bound_elements: Option<serde_json::Value>,
+    pub bound_elements: Option<Vec<BoundElement>>,
     pub updated: u128,
     pub link: Option<String>,
     pub locked: bool,
@@ -89,7 +87,7 @@ pub struct Roundness {
     pub r#type: u8,
 }
 
-impl Default for Rectangle {
+impl Default for ExcalidrawRectangle {
     fn default() -> Self {
         let mut rng = rand::rng();
         Self {
@@ -187,6 +185,13 @@ pub struct ExcalidrawArrow {
     pub elbowed: bool,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct BoundElement {
+    pub id: String,
+    pub r#type: String,
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Binding {
@@ -235,7 +240,7 @@ impl Default for ExcalidrawArrow {
     }
 }
 
-enum Side {
+pub enum Side {
     RIGHT,
     LEFT,
     TOP,
